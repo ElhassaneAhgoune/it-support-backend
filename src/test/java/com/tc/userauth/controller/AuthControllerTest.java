@@ -19,25 +19,18 @@ import org.springframework.security.authentication.BadCredentialsException;
 @WebMvcTest(AuthController.class)
 class AuthControllerTest extends ControllerTest {
 
-    private static final String USERNAME = "testUser";
-    private static final String PASSWORD = "password123";
     private static final String JWT_TOKEN = "mockJwtToken";
-    private static final String JSON_CONTENT = """
-            {
-                "username": "%s",
-                "password": "%s"
-            }
-            """.formatted(USERNAME, PASSWORD);
+
     @MockBean
     private AuthenticationService authenticationService;
 
     @Test
-    void shouldLoginSuccessfully() throws Exception {
+    void authenticate_validCredentials_returnsToken() throws Exception {
         when(authenticationService.authenticate(any(AuthenticationRequestDto.class))).thenReturn(new AuthenticationResponseDto(JWT_TOKEN));
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(JSON_CONTENT))
+                        .content(objectMapper.writeValueAsString(newAuthenticationRequestDto())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value(JWT_TOKEN));
 
@@ -45,15 +38,20 @@ class AuthControllerTest extends ControllerTest {
     }
 
     @Test
-    void shouldFailLoginWithIncorrectCredentials() throws Exception {
+    void authenticate_invalidCredentials_returnsUnauthorized() throws Exception {
         when(authenticationService.authenticate(any(AuthenticationRequestDto.class))).thenThrow(new BadCredentialsException("Login failed"));
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(JSON_CONTENT))
+                        .content(objectMapper.writeValueAsString(newAuthenticationRequestDto())))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.detail").value("Login failed"));
 
         verify(authenticationService).authenticate(any(AuthenticationRequestDto.class));
     }
+
+    private AuthenticationRequestDto newAuthenticationRequestDto() {
+        return new AuthenticationRequestDto("testUser", "password123");
+    }
+
 }

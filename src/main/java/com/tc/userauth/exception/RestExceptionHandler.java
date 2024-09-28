@@ -5,8 +5,10 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import jakarta.validation.ConstraintViolationException;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -29,12 +31,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             final MethodArgumentNotValidException ex, @NonNull final HttpHeaders headers, @NonNull final HttpStatusCode status, @NonNull final WebRequest request) {
 
-        final var errors = ex.getBindingResult().getFieldErrors().stream().collect(Collectors.toMap(
-                FieldError::getField,
-                fieldError -> Optional.ofNullable(fieldError.getDefaultMessage()).orElse("Unknown validation error")
-        ));
+        final Map<String, List<String>> errors = new HashMap<>();
 
-        final var problemDetail = ProblemDetailExt.forStatusDetailAndErrors(status, "Request validation failed.", errors);
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            errors.computeIfAbsent(error.getField(), key -> new ArrayList<>()).add(error.getDefaultMessage());
+        }
+
+        final var problemDetail = ProblemDetailExt.forStatusDetailAndErrors(status, "Request validation failed", errors);
 
         return new ResponseEntity<>(problemDetail, status);
     }
@@ -48,7 +51,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ProblemDetail> handleConstraintViolationException(final ConstraintViolationException ex, @NonNull final WebRequest request) {
-        final var problemDetail = ProblemDetail.forStatusAndDetail(CONFLICT, "Error while processing the request. Please try again.");
+        final var problemDetail = ProblemDetail.forStatusAndDetail(CONFLICT, "Error while processing the request");
 
         log.warn("Constraint violation error occurred", ex);
 
@@ -57,7 +60,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGenericException(final Exception ex) {
-        final var problemDetail = ProblemDetail.forStatusAndDetail(INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
+        final var problemDetail = ProblemDetail.forStatusAndDetail(INTERNAL_SERVER_ERROR, "An unexpected error occurred");
 
         log.error("Unexpected error occurred", ex);
 

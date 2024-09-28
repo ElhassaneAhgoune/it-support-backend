@@ -29,7 +29,7 @@ class AuthServiceTest {
     private AuthenticationService authenticationService;
 
     @Test
-    void shouldAuthenticateAndReturnJwtResponse() {
+    void authenticate_validRequest_returnsJwtToken() {
         final var request = new AuthenticationRequestDto("user", "password");
         final var authToken = new UsernamePasswordAuthenticationToken(request.username(), request.password());
 

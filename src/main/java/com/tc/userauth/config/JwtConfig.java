@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.tc.userauth.service.JwtService;
+import com.tc.userauth.util.CryptoUtil;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
@@ -45,6 +46,11 @@ public class JwtConfig {
     @Bean
     public JwtService jwtService(@Value("${spring.application.name}") final String appName, final JwtEncoder jwtEncoder) {
         return new JwtService(appName, ttl, jwtEncoder);
+    }
+
+    @Bean
+    public CryptoUtil cryptoUtil() throws Exception {
+        return new CryptoUtil(privateKey, publicKey);
     }
 
 }

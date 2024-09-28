@@ -50,6 +50,9 @@ public class User {
     @LastModifiedDate
     private Instant updatedAt;
 
+    @Column(nullable = false)
+    private boolean emailVerified;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

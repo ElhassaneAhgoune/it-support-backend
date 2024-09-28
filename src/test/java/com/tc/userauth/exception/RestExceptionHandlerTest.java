@@ -38,7 +38,7 @@ class RestExceptionHandlerTest {
     private BindingResult bindingResult;
 
     @Test
-    void shouldHandleMethodArgumentNotValidException() {
+    void handleMethodArgumentNotValid_invalidArguments_returnsBadRequest() {
         final var fieldErrors = List.of(
                 new FieldError("objectName", "email", "Invalid email"),
                 new FieldError("objectName", "username", "Username already taken")
@@ -53,27 +53,27 @@ class RestExceptionHandlerTest {
 
         final var problemDetail = (ProblemDetail) requireNonNull(response).getBody();
         assertNotNull(problemDetail);
-        assertEquals("Request validation failed.", problemDetail.getDetail());
+        assertEquals("Request validation failed", problemDetail.getDetail());
         assertEquals(HttpStatus.BAD_REQUEST.value(), problemDetail.getStatus());
         assertNotNull(problemDetail.getProperties());
         assertNotNull(problemDetail.getProperties().get("errors"));
     }
 
     @Test
-    void shouldHandleAuthenticationException() {
+    void handleAuthenticationException_invalidCredentials_returnsUnauthorized() {
         final var authenticationException = mock(AuthenticationException.class);
-        when(authenticationException.getMessage()).thenReturn("Unauthorized access.");
+        when(authenticationException.getMessage()).thenReturn("Unauthorized access");
 
         final var response = restExceptionHandler.handleAuthenticationException(authenticationException);
 
         final var problemDetail = response.getBody();
         assertNotNull(problemDetail);
-        assertEquals("Unauthorized access.", problemDetail.getDetail());
+        assertEquals("Unauthorized access", problemDetail.getDetail());
         assertEquals(HttpStatus.UNAUTHORIZED.value(), problemDetail.getStatus());
     }
 
     @Test
-    void shouldHandleConstraintViolationException() {
+    void handleConstraintViolationException_constraintViolation_returnsConflict() {
         final var constraintViolationException = mock(ConstraintViolationException.class);
 
         final var response = restExceptionHandler.handleConstraintViolationException(
@@ -82,19 +82,19 @@ class RestExceptionHandlerTest {
 
         final var problemDetail = response.getBody();
         assertNotNull(problemDetail);
-        assertEquals("Error while processing the request. Please try again.", problemDetail.getDetail());
+        assertEquals("Error while processing the request", problemDetail.getDetail());
         assertEquals(HttpStatus.CONFLICT.value(), problemDetail.getStatus());
     }
 
     @Test
-    void shouldHandleGenericException() {
+    void handleGenericException_unexpectedError_returnsInternalServerError() {
         final var genericException = new Exception("Something went wrong");
 
         final var response = restExceptionHandler.handleGenericException(genericException);
 
         final var problemDetail = response.getBody();
         assertNotNull(problemDetail);
-        assertEquals("An unexpected error occurred.", problemDetail.getDetail());
+        assertEquals("An unexpected error occurred", problemDetail.getDetail());
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), problemDetail.getStatus());
     }
 }

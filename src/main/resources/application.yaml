@@ -3,8 +3,28 @@ spring:
     name: user-authentication-service-jwt
   jpa:
     open-in-view: false
-
+  mail:
+    host: localhost
+    port: 1025
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
+  data:
+    redis:
+      repositories:
+        enabled: false
 jwt:
   private-key: classpath:jwt/app.key
   public-key: classpath:jwt/app.pub
   ttl: 15m
+
+email-verification:
+  base-url: http://localhost:8080/api/auth/email/verify?uid=%s&t=%s
+  required: true
+
+otp:
+  email-verification:
+    cache-prefix: otp:email-verification:%s
+    ttl: 5m
+    characters: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789
+    length: 50

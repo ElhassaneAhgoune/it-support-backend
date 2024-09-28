@@ -1,6 +1,6 @@
 package com.tc.userauth.service;
 
-import static com.tc.userauth.testdata.TestUserBuilder.createUser;
+import static com.tc.userauth.testdata.TestUserBuilder.userBuilder;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
@@ -30,8 +30,8 @@ class UserRegistrationServiceTest {
     private UserRegistrationService userRegistrationService;
 
     @Test
-    void shouldRegisterUserSuccessfully() {
-        final var user = createUser();
+    void registerUser_validRequest_savesUser() {
+        final var user = userBuilder().build();
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
         when(userRepository.existsByUsername(user.getUsername())).thenReturn(false);
         when(passwordEncoder.encode(user.getPassword())).thenReturn("encodedPassword");
@@ -43,8 +43,8 @@ class UserRegistrationServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionIfEmailExists() {
-        final var user = createUser();
+    void registerUser_emailExists_throwsValidationException() {
+        final var user = userBuilder().build();
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
 
         assertThatThrownBy(() -> userRegistrationService.registerUser(user))
@@ -54,8 +54,8 @@ class UserRegistrationServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionIfUsernameExists() {
-        final var user = createUser();
+    void registerUser_usernameExists_throwsValidationException() {
+        final var user = userBuilder().build();
         when(userRepository.existsByUsername(user.getUsername())).thenReturn(true);
 
         assertThatThrownBy(() -> userRegistrationService.registerUser(user))
@@ -63,4 +63,5 @@ class UserRegistrationServiceTest {
 
         verify(userRepository, never()).save(any(User.class));
     }
+
 }

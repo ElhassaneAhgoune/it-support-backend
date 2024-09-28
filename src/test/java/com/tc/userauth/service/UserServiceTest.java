@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.GONE;
 
 import com.tc.userauth.entity.User;
 import com.tc.userauth.repository.UserRepository;
@@ -29,7 +30,7 @@ class UserServiceTest {
     private User user;
 
     @Test
-    void shouldReturnUserWhenUsernameExists() {
+    void getUserByUsername_existingUsername_returnsUser() {
         final var username = "testUser";
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
@@ -41,7 +42,7 @@ class UserServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUsernameNotFound() {
+    void getUserByUsername_nonExistingUsername_throwsException() {
         final var username = "unknownUser";
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
@@ -49,6 +50,6 @@ class UserServiceTest {
         final var exception = assertThrows(ResponseStatusException.class, () -> userService.getUserByUsername(username));
 
         assertEquals("The user account has been deleted or inactivated", exception.getReason());
-        assertEquals(410, exception.getStatusCode().value());
+        assertEquals(GONE, exception.getStatusCode());
     }
 }

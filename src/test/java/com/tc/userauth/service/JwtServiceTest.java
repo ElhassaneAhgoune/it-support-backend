@@ -30,7 +30,7 @@ class JwtServiceTest {
     private Jwt jwt;
 
     @Test
-    void shouldGenerateTokenSuccessfully() {
+    void generateToken_validUsername_returnsToken() {
         final var jwtService = new JwtService(ISSUER, JWT_TTL, jwtEncoder);
 
         final var claimsSet = JwtClaimsSet.builder()
@@ -46,4 +46,5 @@ class JwtServiceTest {
 
         assertThat(token).isEqualTo(TOKEN_VALUE);
     }
+
 }

@@ -1,6 +1,6 @@
 package com.tc.userauth.repository;
 
-import static com.tc.userauth.testdata.TestUserBuilder.createUser;
+import static com.tc.userauth.testdata.TestUserBuilder.userBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -12,8 +12,8 @@ class UserRepositoryIT extends JpaTest {
     private UserRepository userRepository;
 
     @Test
-    void shouldFindUserByUsername() {
-        final var testUser = userRepository.save(createUser());
+    void findByUsername_existingUser_returnsUser() {
+        final var testUser = userRepository.save(userBuilder().build());
         final var foundUser = userRepository.findByUsername(testUser.getUsername());
 
         assertThat(foundUser).isPresent();
@@ -21,36 +21,59 @@ class UserRepositoryIT extends JpaTest {
     }
 
     @Test
-    void shouldCheckIfUserExistsByUsername() {
-        final var testUser = userRepository.save(createUser());
+    void findByUsername_nonExistingUsername_returnsEmpty() {
+        final var foundUser = userRepository.findByUsername("nonexistentUser");
+
+        assertThat(foundUser).isNotPresent();
+    }
+
+    @Test
+    void findByEmail_existingUser_returnsUser() {
+        final var testUser = userRepository.save(userBuilder().build());
+        final var foundUser = userRepository.findByEmail(testUser.getEmail());
+
+        assertThat(foundUser).isPresent();
+        assertThat(foundUser.get().getEmail()).isEqualTo(testUser.getEmail());
+    }
+
+    @Test
+    void findByEmail_nonExistingEmail_returnsEmpty() {
+        final var foundUser = userRepository.findByEmail("nonexistent@example.com");
+
+        assertThat(foundUser).isNotPresent();
+    }
+
+    @Test
+    void existsByUsername_existingUsername_returnsTrue() {
+        final var testUser = userRepository.save(userBuilder().build());
         final var exists = userRepository.existsByUsername(testUser.getUsername());
 
         assertThat(exists).isTrue();
     }
 
     @Test
-    void shouldCheckIfUserExistsByEmail() {
-        final var testUser = userRepository.save(createUser());
+    void existsByEmail_existingEmail_returnsTrue() {
+        final var testUser = userRepository.save(userBuilder().build());
         final var exists = userRepository.existsByEmail(testUser.getEmail());
 
         assertThat(exists).isTrue();
     }
 
     @Test
-    void shouldSaveAndRetrieveUser() {
-        final var createUser = createUser();
-        final var savedUser = userRepository.save(createUser);
+    void saveAndFindById_user_returnsSavedUser() {
+        final var newUser = userBuilder().build();
+        final var savedUser = userRepository.save(newUser);
 
         final var retrievedUser = userRepository.findById(savedUser.getId());
 
         assertThat(retrievedUser).isPresent();
-        assertThat(retrievedUser.get().getUsername()).isEqualTo(createUser.getUsername());
-        assertThat(retrievedUser.get().getEmail()).isEqualTo(createUser.getEmail());
+        assertThat(retrievedUser.get().getUsername()).isEqualTo(newUser.getUsername());
+        assertThat(retrievedUser.get().getEmail()).isEqualTo(newUser.getEmail());
     }
 
     @Test
-    void shouldDeleteUser() {
-        final var testUser = userRepository.save(createUser());
+    void delete_user_userDoesNotExist() {
+        final var testUser = userRepository.save(userBuilder().build());
         userRepository.delete(testUser);
 
         final var deletedUser = userRepository.findById(testUser.getId());

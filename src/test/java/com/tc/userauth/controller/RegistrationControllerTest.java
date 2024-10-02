@@ -18,6 +18,7 @@ import com.tc.userauth.exception.ValidationException;
 import com.tc.userauth.mapper.UserRegistrationMapper;
 import com.tc.userauth.service.EmailVerificationService;
 import com.tc.userauth.service.UserRegistrationService;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,7 @@ class RegistrationControllerTest extends ControllerTest {
 
     @Test
     void registerUser_emailOrUsernameExists_returnsConflict() throws Exception {
-        doThrow(new ValidationException(CONFLICT, Map.of("email", "Email is already taken")))
+        doThrow(new ValidationException(CONFLICT, Map.of("email", List.of("Email is already taken"))))
                 .when(userRegistrationService)
                 .registerUser(any());
 

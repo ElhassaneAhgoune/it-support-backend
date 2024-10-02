@@ -3,10 +3,9 @@
 ## Project Overview
 This project is a **user authentication service** built with **Spring Boot**, **PostgreSQL**, and **JWT** (JSON Web Tokens) for secure access to protected resources. 
 
-The service includes user registration, login, and email verification using OTP (One-Time Password).
+The service includes user registration, login, email verification using OTP (One-Time Password), refresh token handling, and logout functionality.
 
 The project follows best practices in terms of security, testing, and maintainability, utilizing tools like **Flyway** for database migrations, **MailHog** for email testing, and **Redis** for OTP management.
-
 
 ## Key Features
 1. **User Registration**: Register users with a username, email, and password.
@@ -14,6 +13,8 @@ The project follows best practices in terms of security, testing, and maintainab
 3. **JWT Authentication**: Protect endpoints by requiring valid JWT tokens.
 4. **Email Verification**: Verify user emails using an OTP sent to the registered email address.
 5. **Resend Verification Email**: Allows users to request a new email verification link if needed.
+6. **Refresh Token**: Use refresh tokens to obtain new access tokens without re-authenticating.
+7. **Logout**: Revoke refresh tokens to invalidate the session on logout.
 
 ## Tech Stack
 - **Java 21**
@@ -110,19 +111,25 @@ The database will be created and configured automatically and during application
     ```
 3. User Profile (Protected)
     ```bash
-    curl -X GET http://localhost:8080/api/user/me \
-    -H "Authorization: Bearer your.jwt.token.here"
+    curl -X GET http://localhost:8080/api/user/me -H "Authorization: Bearer your.jwt.token.here"
     ```
 4. Resend Verification Email
    ```bash
-    curl -X POST http://localhost:8080/api/auth/email/resend-verification \
-    -d "email=test@example.com"
+    curl -X POST http://localhost:8080/api/auth/email/resend-verification -d "email=test@example.com"
    ```
-5. Resend Verification Email
+5. Verify Email
    ```bash
-    curl -X GET "http://localhost:8080/api/auth/email/verify?uid=encryptedUserId&t=otpToken"
+    curl -X GET http://localhost:8080/api/auth/email/verify -d "uid=encryptedUserId&t=otpToken"
    ```
-
+6. Refresh Token
+   ```bash
+    curl -X POST http://localhost:8080/api/auth/refresh-token -d "refreshToken=your-refresh-token-here"
+   ```
+7. Logout (Revoke Refresh Token)
+   ```bash
+    curl -X POST http://localhost:8080/api/auth/logout -d "refreshToken=your-refresh-token-here"
+   ```
+   
 ### Email Testing
 
 To view the verification emails sent by the application, visit the MailHog web interface at http://localhost:8025.

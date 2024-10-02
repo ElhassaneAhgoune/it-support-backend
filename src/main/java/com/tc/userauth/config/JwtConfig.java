@@ -29,7 +29,7 @@ public class JwtConfig {
 
     private RSAPublicKey publicKey;
 
-    private Duration ttl;
+    private Duration accessTokenTtl;
 
     @Bean
     public JwtEncoder jwtEncoder() {
@@ -45,7 +45,7 @@ public class JwtConfig {
 
     @Bean
     public JwtService jwtService(@Value("${spring.application.name}") final String appName, final JwtEncoder jwtEncoder) {
-        return new JwtService(appName, ttl, jwtEncoder);
+        return new JwtService(appName, accessTokenTtl, jwtEncoder);
     }
 
     @Bean

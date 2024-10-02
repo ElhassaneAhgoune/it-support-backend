@@ -21,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @ExtendWith(MockitoExtension.class)
 class RestExceptionHandlerTest {
@@ -32,9 +33,6 @@ class RestExceptionHandlerTest {
     private WebRequest webRequest;
 
     @Mock
-    private MethodArgumentNotValidException methodArgumentNotValidException;
-
-    @Mock
     private BindingResult bindingResult;
 
     @Test
@@ -43,6 +41,8 @@ class RestExceptionHandlerTest {
                 new FieldError("objectName", "email", "Invalid email"),
                 new FieldError("objectName", "username", "Username already taken")
         );
+
+        final var methodArgumentNotValidException = mock(MethodArgumentNotValidException.class);
 
         when(methodArgumentNotValidException.getBindingResult()).thenReturn(bindingResult);
         when(bindingResult.getFieldErrors()).thenReturn(fieldErrors);
@@ -57,6 +57,22 @@ class RestExceptionHandlerTest {
         assertEquals(HttpStatus.BAD_REQUEST.value(), problemDetail.getStatus());
         assertNotNull(problemDetail.getProperties());
         assertNotNull(problemDetail.getProperties().get("errors"));
+    }
+
+    @Test
+    void handleMethodArgumentTypeMismatchException_invalidArguments_returnsBadRequest() {
+        final var methodArgumentTypeMismatchException = mock(MethodArgumentTypeMismatchException.class);
+
+        when(methodArgumentTypeMismatchException.getName()).thenReturn("email");
+
+        final var response = restExceptionHandler.handleMethodArgumentTypeMismatchException(
+                methodArgumentTypeMismatchException
+        );
+
+        final var problemDetail = requireNonNull(response).getBody();
+        assertNotNull(problemDetail);
+        assertEquals("Parameter [email] contains an invalid value", problemDetail.getDetail());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), problemDetail.getStatus());
     }
 
     @Test

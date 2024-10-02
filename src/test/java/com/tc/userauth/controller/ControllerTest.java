@@ -12,7 +12,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
-@Import({SecurityConfig.class, JwtConfig.class, BearerTokenAuthenticationEntryPoint.class, BearerTokenAccessDeniedHandler.class})
+@Import({
+        SecurityConfig.class,
+        JwtConfig.class,
+        BearerTokenAuthenticationEntryPoint.class,
+        BearerTokenAccessDeniedHandler.class
+})
 public abstract class ControllerTest {
 
     @Autowired

@@ -17,10 +17,13 @@ public class JwtService {
     private final JwtEncoder jwtEncoder;
 
     public String generateToken(final String username) {
+        final var issuedAt = Instant.now();
+
         final var claimsSet = JwtClaimsSet.builder()
                 .subject(username)
                 .issuer(issuer)
-                .expiresAt(Instant.now().plus(ttl))
+                .issuedAt(issuedAt)
+                .expiresAt(issuedAt.plus(ttl))
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claimsSet)).getTokenValue();

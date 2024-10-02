@@ -15,6 +15,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User getUserByUsername(final String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(GONE, "The user account has been deleted or inactivated"));
+        return userRepository.findByUsername(username).orElseThrow(() ->
+                new ResponseStatusException(GONE, "The user account has been deleted or inactivated"));
     }
 }

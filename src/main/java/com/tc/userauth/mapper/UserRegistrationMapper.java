@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserRegistrationMapper {
 
-    public User toEntity(RegistrationRequestDto registrationRequestDto) {
+    public User toEntity(final RegistrationRequestDto registrationRequestDto) {
         final var user = new User();
 
         user.setEmail(registrationRequestDto.email());
@@ -18,8 +18,8 @@ public class UserRegistrationMapper {
         return user;
     }
 
-    public RegistrationResponseDto toRegistrationResponseDto(final User user, final boolean emailVerificationRequired) {
-        return new RegistrationResponseDto(user.getEmail(), user.getUsername(), emailVerificationRequired);
+    public RegistrationResponseDto toResponseDto(final User user) {
+        return new RegistrationResponseDto(user.getEmail(), user.getUsername());
     }
 
 }

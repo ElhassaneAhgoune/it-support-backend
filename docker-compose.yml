@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  oracle-db:
+    image: gvenzl/oracle-xe:21-slim
+    environment:
+      - ORACLE_PASSWORD=password
+      - APP_USER=ticket_system
+      - APP_USER_PASSWORD=password
+      - ORACLE_CHARACTERSET=AL32UTF8
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "sqlplus", "-L", "ticket_system/password@//localhost:1521/XEPDB1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//oracle-db:1521/XEPDB1
+      - SPRING_DATASOURCE_USERNAME=ticket_system
+      - SPRING_DATASOURCE_PASSWORD=password
+    depends_on:
+      oracle-db:
+        condition: service_healthy
+
+volumes:
+  oracle-data:

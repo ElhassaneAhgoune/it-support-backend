@@ -1,143 +1,103 @@
-Here's a standardized README format suitable for most projects:
+Here's a Docker-focused README section based on your `docker-compose.yml`:
 
 ```markdown
-# [Project Title] 
-
-[Brief tagline or one-sentence description]
-
-![Optional Project Banner/Logo](path/to/image.png)
-
-## Table of Contents
-- [Project Overview](#project-overview)
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
-- [Configuration](#configuration)
-- [API Documentation](#api-documentation)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
-- [Support](#support)
-
-## Project Overview
-[2-3 paragraph description of the project's purpose and main objectives]
-
-## Key Features
-- **Feature 1**: Brief description
-- **Feature 2**: Brief description 
-- **Feature 3**: Brief description
-- [Add more as needed]
-
-## Tech Stack
-**Backend**  
-- Java 17
-- Spring Boot 3.x
-- [Other frameworks]
-
-**Frontend**  
-- Java Swing
-- [Other UI technologies]
-
-**Database**  
-- Oracle SQL
-- [Other DB systems]
-
-**Tools**  
-- Docker
-- Maven
-- [Other tools]
+# IT Support Ticket System - Docker Setup
 
 ## Prerequisites
-- [Software 1] (e.g., Java 17+)
-- [Software 2] (e.g., Docker 20.10+)
-- [Other requirements]
+- Docker 20.10+ 
+- Docker Compose 1.29+
 
-## Getting Started
+## Quick Start with Docker Compose
 
-### Installation
-```bash
-git clone [repository-url]
-cd [project-directory]
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-repo/itsupport-system.git
+   cd itsupport-system
+   ```
 
-### Setup
-1. [Step 1 - e.g., Configure database]
-2. [Step 2 - e.g., Set environment variables]
-3. [Step 3 - e.g., Build project]
+2. **Start the system**
+   ```bash
+   docker-compose up -d
+   ```
 
-### Running
-```bash
-# Example command to start the application
-mvn spring-boot:run
-```
+This will start:
+- Oracle Database 21c
+- Redis (for session management)
+- MailHog (email testing interface)
+- Spring Boot Application
 
-## Project Structure
-```plaintext
-[Directory tree structure with brief explanations]
-src/
-├── main/
-│   ├── java/          # Source code
-│   └── resources/     # Configuration files
-└── test/              # Test cases
-```
+## Service Details
 
-## Configuration
-[Explain configuration files/environment variables]
+### Container Overview
+| Service               | Ports          | Purpose                          |
+|-----------------------|----------------|----------------------------------|
+| `oracle-db`           | 1521           | Oracle Database instance         |
+| `mailhog`             | 1025, 8025     | Email testing interface          |
+| `redis`               | 6379           | Session storage                  |
+| `app-service`         | 8080           | Spring Boot application          |
+
+### Environment Configuration
+The application service is pre-configured with:
 ```yaml
-# Example application.yml
-server:
-  port: 8080
-spring:
-  datasource:
-    url: jdbc:oracle:thin:@localhost:1521:XE
+SPRING_DATASOURCE_URL: jdbc:oracle:thin:@oracle-db:1521/user_authentication
+SPRING_DATASOURCE_USERNAME: appuser
+SPRING_DATASOURCE_PASSWORD: password
+SPRING_REDIS_HOST: redis
+SPRING_MAIL_HOST: mailhog
 ```
 
-## API Documentation
-[Describe how to access API docs]
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI Spec: `http://localhost:8080/v3/api-docs`
+## Initial Setup Notes
+1. **Database Persistence**  
+   - Oracle data is persisted in `oracle-data` volume
+   - Initial schema scripts should be placed in `./sql-scripts`
 
-## Testing
+2. **Email Testing**  
+   Access MailHog web interface at: `http://localhost:8025`
+
+3. **Application Health**  
+   The system will wait for Oracle DB to be healthy before starting the app service
+
+## Common Commands
+
+### Start services
 ```bash
-# Run tests
-mvn test
-```
-
-## Deployment
-```bash
-# Build Docker image
-docker build -t [image-name] .
-
-# Start containers
 docker-compose up -d
 ```
 
-## Contributing
-[Contribution guidelines]
-1. Fork the repository
-2. Create your feature branch
-3. Commit changes
-4. Push to the branch
-5. Open a pull request
-
-## License
-[License information]  
-This project is licensed under the [License Name] - see [LICENSE.md](LICENSE.md) for details.
-
-## Support
-For assistance, contact:  
-[Your Name] - [email@example.com]  
-[Issue tracker link]  
+### Stop services
+```bash
+docker-compose down
 ```
 
-**Customization Tips**:
-1. Add/remove sections based on project needs
-2. Include visual elements (diagrams, screenshots)
-3. Add badges for build status, code coverage
-4. Include troubleshooting section if needed
-5. Add acknowledgments section when applicable
+### View logs
+```bash
+docker-compose logs -f app-service
+```
 
-This format balances technical detail with readability, making it suitable for both developers and stakeholders.
+### Rebuild application
+```bash
+docker-compose build app-service
+```
+
+## Troubleshooting
+1. If Oracle DB fails to initialize:
+   - Check initialization scripts in `./sql-scripts`
+   - Verify credentials match between DB and application service
+
+2. If services don't start in order:
+   ```bash
+   docker-compose down -v && docker-compose up -d
+   ```
+
+3. For persistent data issues:
+   ```bash
+   docker volume prune
+   ```
+
+> **Note**: For production deployments, always:
+> - Change default credentials
+> - Use proper SSL configuration
+> - Remove MailHog and use real email service
+```
+
+This structure focuses on Docker-specific setup while maintaining essential information for developers. You can add additional sections for application-specific details (API documentation, features, etc.) below this Docker setup section.

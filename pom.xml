@@ -10,22 +10,22 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.tc.userauth</groupId>
-    <artifactId>user-authentication-service-jwt</artifactId>
+    <groupId>com.itsupportbackend</groupId>
+    <artifactId>it-support-backend</artifactId>
     <version>1.0.0</version>
-    <name>user-authentication-service-jwt</name>
-    <description>Project to demonstrate user registration and authentication using jwt</description>
-
-    <licenses>
-        <license>
-            <name>MIT License</name>
-            <url>https://opensource.org/licenses/MIT</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+    <name>it-support-backend</name>
+    <description>it-support-backend</description>
 
     <properties>
-        <java.version>21</java.version>
+
+            <!-- Other properties... -->
+         <flyway.url>jdbc:oracle:thin:@localhost:1521/user_authentication</flyway.url>
+            <flyway.user>appuser</flyway.user>
+            <flyway.password>password</flyway.password>
+            <flyway.schemas>APPUSER</flyway.schemas>
+            <flyway.locations>classpath:db/migration</flyway.locations>
+
+        <java.version>17</java.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
     </properties>
 
@@ -71,10 +71,10 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
 
-        <!-- Database dependencies -->
+        <!-- Database dependencies (Oracle) -->
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -83,7 +83,7 @@
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
+            <artifactId>flyway-database-oracle</artifactId>
         </dependency>
 
         <!-- Dev dependencies -->
@@ -105,6 +105,18 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>oracle-free</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
@@ -119,16 +131,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-testcontainers</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -162,6 +164,20 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>10.10.0</version>
+                <configuration>
+                    <url>${flyway.url}</url>
+                    <user>${flyway.user}</user>
+                    <password>${flyway.password}</password>
+                    <schemas>${flyway.schemas}</schemas>
+                    <locations>${flyway.locations}</locations>
+                </configuration>
+            </plugin>
+
+
         </plugins>
     </build>
 

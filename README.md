@@ -11,8 +11,8 @@ Here's a Docker-focused README section based on your `docker-compose.yml`:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-repo/itsupport-system.git
-   cd itsupport-system
+   git clone https://github.com/ElhassaneAhgoune/it-support-backend.git 
+   cd it-support-backend
    ```
 
 2. **Start the system**

@@ -1,0 +1,9 @@
+@echo off
+echo Starting backend services...
+docker-compose up -d
+
+echo Waiting for backend to be ready...
+timeout /t 20
+
+echo Starting client application...
+java -jar swing-client-1.0.0.jar
